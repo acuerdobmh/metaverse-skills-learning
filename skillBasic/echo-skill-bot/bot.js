@@ -3,11 +3,11 @@
 
 const { ActivityHandler, ActivityTypes, EndOfConversationCodes } = require('botbuilder');
 const got = require('got');
-const crypto = require("crypto");
+const crypto = require('crypto');
 const url = 'https://api-devel.auracognitive.com/llm-api/v1/generate';
-const id = crypto.randomBytes(16).toString("hex");
+const id = crypto.randomBytes(16).toString('hex');
 console.log(id);
-let output = "";
+let output = '';
 
 class EchoBot extends ActivityHandler {
     constructor() {
@@ -26,12 +26,12 @@ class EchoBot extends ActivityHandler {
                 const options = {
                     json: {
                         sesid: id,
-                        preset: "movistar-mei",
-                        query: context.activity.text.toLowerCase(),
+                        preset: 'movistar-mei',
+                        query: context.activity.text.toLowerCase()
                     },
                     headers: {
                         'X-Api-Key': 'fa4c0998-fe2e-11ed-afb7-13611b8f8dc1'
-                    },
+                    }
                 };
                 await getOutputText(options)
                     .then(outputText => {

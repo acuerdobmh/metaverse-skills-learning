@@ -2,7 +2,7 @@
 
 Bot Framework v4 Skills Echo sample.
 
-This bot has been created using [Bot Framework](https://dev.botframework.com), it shows how to create a simple RootBot that sends message activities to a SkillBot that echoes it back.
+This bot has been created using [Bot Framework](https://dev.botframework.com), it shows how to create a simple RootBot that sends message activities to a SkillBotOpenAi that echoes it back.
 
 ## Prerequisites
 

@@ -1,8 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-const { ActivityTypes, InputHints, MessageFactory } = require('botbuilder');
-const { ChoicePrompt, ComponentDialog, DialogSet, DialogTurnStatus, SkillDialog, WaterfallDialog } = require('botbuilder-dialogs');
+const {ActivityTypes, InputHints, MessageFactory} = require('botbuilder');
+const {
+    ChoicePrompt,
+    ComponentDialog,
+    DialogSet,
+    DialogTurnStatus,
+    SkillDialog,
+    WaterfallDialog
+} = require('botbuilder-dialogs');
 
 const MAIN_DIALOG = 'MainDialog';
 const SKILL_PROMPT = 'SkillPrompt';
@@ -26,10 +33,10 @@ class MainDialog extends ComponentDialog {
         if (!skillClient) throw new Error('[MainDialog]: Missing parameter \'skillClient\' is required');
         if (!conversationIdFactory) throw new Error('[MainDialog]: Missing parameter \'conversationIdFactory\' is required');
 
-        this.activeSkillPropertyName = `${ MAIN_DIALOG }.activeSkillProperty`;
+        this.activeSkillPropertyName = `${MAIN_DIALOG}.activeSkillProperty`;
         this.activeSkillProperty = conversationState.createProperty(this.activeSkillPropertyName);
         this.skillsConfig = skillsConfig;
-        this.selectedSkillKey = `${ MAIN_DIALOG }.selectedSkillKey`;
+        this.selectedSkillKey = `${MAIN_DIALOG}.selectedSkillKey`;
 
         // Use helper method to add SkillDialog instances for the configured skills.
         this.addSkillDialogs(conversationState, conversationIdFactory, skillClient, skillsConfig, process.env.MicrosoftAppId);
@@ -75,7 +82,7 @@ class MainDialog extends ComponentDialog {
             // The SkillDialog automatically sends an EndOfConversation message to the skill to let the
             // skill know that it needs to end its current dialogs, too.
             await innerDc.cancelAllDialogs();
-            return await innerDc.replaceDialog(this.initialDialogId, { text: 'Canceled! \n\n What skill would you like to call?' });
+            return await innerDc.replaceDialog(this.initialDialogId, {text: 'Canceled! \n\n What skill would you like to call?'});
         }
 
         return await super.onContinueDialog(innerDc);
@@ -110,7 +117,7 @@ class MainDialog extends ComponentDialog {
         stepContext.values[this.selectedSkillKey] = selectedSkill;
 
         // Create the PromptOptions with the actions supported by the selected skill.
-        const messageText = `Select an action # to send to **${ selectedSkill.id }** or just type in a message and it will be forwarded to the skill`;
+        const messageText = `Select an action # to send to **${selectedSkill.id}** or just type in a message and it will be forwarded to the skill`;
         const options = {
             prompt: MessageFactory.text(messageText, messageText, InputHints.ExpectingInput),
             choices: this.getSkillActions(selectedSkill)
@@ -133,11 +140,11 @@ class MainDialog extends ComponentDialog {
                 break;
             // We can add other case statements here if we support more than one skill.
             default:
-                throw new Error(`Unknown target skill id: ${ selectedSkill.id }`);
+                throw new Error(`Unknown target skill id: ${selectedSkill.id}`);
         }
 
         // Create the BeginSkillDialogOptions and assign the activity to send.
-        const skillDialogArgs = { activity: skillActivity };
+        const skillDialogArgs = {activity: skillActivity};
 
         // Save active skill in state.
         await this.activeSkillProperty.set(stepContext.context, selectedSkill);
@@ -154,8 +161,8 @@ class MainDialog extends ComponentDialog {
 
         // Check if the skill returned any results and display them.
         if (stepContext.result != null) {
-            let message = `Skill "${ activeSkill.id }" invocation complete.`;
-            message += `\nResult: ${ JSON.stringify(stepContext.result, null, 2) }`;
+            let message = `Skill "${activeSkill.id}" invocation complete.`;
+            message += `\nResult: ${JSON.stringify(stepContext.result, null, 2)}`;
             await stepContext.context.sendActivity(message, message, InputHints.IgnoringInput);
         }
 
@@ -166,7 +173,7 @@ class MainDialog extends ComponentDialog {
         await this.activeSkillProperty.delete(stepContext.context);
 
         // Restart the main dialog with a different message the second time around.
-        return await stepContext.replaceDialog(this.initialDialogId, { text: `Done with "${ activeSkill.id }". \n\n What skill would you like to call?` });
+        return await stepContext.replaceDialog(this.initialDialogId, {text: `Done with "${activeSkill.id}". \n\n What skill would you like to call?`});
     }
 
     /**
@@ -199,9 +206,14 @@ class MainDialog extends ComponentDialog {
         const choices = [];
         switch (skill.id) {
             case 'DialogSkillBot':
-                choices.push({ value: SKILL_ACTION_BOOK_FLIGHT });
-                choices.push({ value: SKILL_ACTION_BOOK_FLIGHT_WITH_INPUT_PARAMETERS });
-                choices.push({ value: SKILL_ACTION_GET_WEATHER });
+                choices.push({value: SKILL_ACTION_BOOK_FLIGHT});
+                choices.push({value: SKILL_ACTION_BOOK_FLIGHT_WITH_INPUT_PARAMETERS});
+                choices.push({value: SKILL_ACTION_GET_WEATHER});
+                break;
+            case 'DialogSkillBotOpenAi':
+                choices.push({value: SKILL_ACTION_BOOK_FLIGHT});
+                choices.push({value: SKILL_ACTION_BOOK_FLIGHT_WITH_INPUT_PARAMETERS});
+                choices.push({value: SKILL_ACTION_GET_WEATHER});
                 break;
         }
 
@@ -224,7 +236,7 @@ class MainDialog extends ComponentDialog {
         let activity;
         // Send an event activity to the skill with "BookFlight" in the name.
         if (selectedOption.toLowerCase() === SKILL_ACTION_BOOK_FLIGHT.toLowerCase()) {
-            activity = { type: ActivityTypes.Event, name: SKILL_ACTION_BOOK_FLIGHT };
+            activity = {type: ActivityTypes.Event, name: SKILL_ACTION_BOOK_FLIGHT};
         }
 
         // Send an event activity to the skill "BookFlight" in the name and some testing values.
@@ -252,7 +264,7 @@ class MainDialog extends ComponentDialog {
         }
 
         if (!activity) {
-            throw new Error(`Unable to create dialogArgs for ${ selectedOption }`);
+            throw new Error(`Unable to create dialogArgs for ${selectedOption}`);
         }
 
         // We are manually creating the activity to send to the skill; ensure we add the ChannelData and Properties
@@ -269,7 +281,7 @@ class MainDialog extends ComponentDialog {
      */
     async skillActionPromptValidator(promptContext) {
         if (!promptContext.recognized.succeeded) {
-            promptContext.recognized.value = { value: SKILL_ACTION_MESSAGE };
+            promptContext.recognized.value = {value: SKILL_ACTION_MESSAGE};
         }
 
         return true;

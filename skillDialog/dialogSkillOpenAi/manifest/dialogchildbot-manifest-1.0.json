@@ -25,26 +25,15 @@
     }
   ],
   "activities": {
-    "bookFlight": {
-      "description": "Books a flight (multi turn).",
+    "Devices": {
+      "description": "Devices Dialog",
       "type": "event",
-      "name": "BookFlight",
+      "name": "Devices",
       "value": {
-        "$ref": "#/definitions/bookingInfo"
+        "$ref": ""
       },
       "resultValue": {
-        "$ref": "#/definitions/bookingInfo"
-      }
-    },
-    "getWeather": {
-      "description": "Retrieves and returns the weather for the user's location.",
-      "type": "event",
-      "name": "GetWeather",
-      "value": {
-        "$ref": "#/definitions/location"
-      },
-      "resultValue": {
-        "$ref": "#/definitions/weatherReport"
+        "$ref": ""
       }
     },
     "passthroughMessage": {
@@ -56,52 +45,6 @@
     }
   },
   "definitions": {
-    "bookingInfo": {
-      "type": "object",
-      "required": [
-        "origin"
-      ],
-      "properties": {
-        "origin": {
-          "type": "string",
-          "description": "This is the origin city for the flight."
-        },
-        "destination": {
-          "type": "string",
-          "description": "This is the destination city for the flight."
-        },
-        "travelDate": {
-          "type": "string",
-          "description": "The date for the flight in YYYY-MM-DD format."
-        }
-      }
-    },
-    "weatherReport": {
-      "type": "array",
-      "description": "Array of forecasts for the next week.",
-      "items": [
-        {
-          "type": "string"
-        }
-      ]
-    },
-    "location": {
-      "type": "object",
-      "description": "Location metadata.",
-      "properties": {
-        "latitude": {
-          "type": "number",
-          "title": "Latitude"
-        },
-        "longitude": {
-          "type": "number",
-          "title": "Longitude"
-        },
-        "postalCode": {
-          "type": "string",
-          "title": "Postal code"
-        }
-      }
-    }
+
   }
 }

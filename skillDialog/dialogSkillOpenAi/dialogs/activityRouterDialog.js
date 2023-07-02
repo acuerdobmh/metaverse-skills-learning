@@ -1,29 +1,28 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-const { ActivityTypes, InputHints } = require('botbuilder');
-const { ComponentDialog, DialogTurnStatus, WaterfallDialog } = require('botbuilder-dialogs');
-const { LuisRecognizer } = require('botbuilder-ai');
-const { BookingDialog } = require('./bookingDialog');
+const {ActivityTypes, InputHints} = require('botbuilder');
+const {ComponentDialog, DialogTurnStatus, WaterfallDialog} = require('botbuilder-dialogs');
+const {LuisRecognizer} = require('botbuilder-ai');
+const {openAiDialog} = require('./openAiDialog');
+const crypto = require("crypto");
 
 const ACTIVITY_ROUTER_DIALOG = 'activityRouterDialog';
 const WATERFALL_DIALOG = 'waterfallDialog';
-const BOOKING_DIALOG = 'bookingDialog';
+const OPENAI_DIALOG = 'openAiDialog';
 
 /**
  * A root dialog that can route activities sent to the skill to different sub-dialogs.
  */
 class ActivityRouterDialog extends ComponentDialog {
-    constructor(conversationState, luisRecognizer = undefined) {
+    constructor(conversationState) {
         super(ACTIVITY_ROUTER_DIALOG);
 
         if (!conversationState) throw new Error('[MainDialog]: Missing parameter \'conversationState\' is required');
 
-        this.luisRecognizer = luisRecognizer;
-
         // Define the main dialog and its related components.
         // This is a sample "book a flight" dialog.
-        this.addDialog(new BookingDialog())
+        this.addDialog(new openAiDialog())
             .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
                 this.processActivity.bind(this)
             ]));
@@ -37,7 +36,7 @@ class ActivityRouterDialog extends ComponentDialog {
             type: ActivityTypes.Trace,
             timestamp: new Date(),
             text: 'ActivityRouterDialog.processActivity()',
-            label: `Got activityType: ${ stepContext.context.activity.type }`
+            label: `Got activityType: ${stepContext.context.activity.type}`
         };
         await stepContext.context.sendActivity(traceActivity);
 
@@ -49,11 +48,11 @@ class ActivityRouterDialog extends ComponentDialog {
             default:
                 // Catch all for unhandled intents.
                 await stepContext.context.sendActivity(
-                    `Unrecognized ActivityType: "${ stepContext.context.activity.type }".`,
+                    `Unrecognized ActivityType: "${stepContext.context.activity.type}".`,
                     undefined,
                     InputHints.IgnoringInput
                 );
-                return { status: DialogTurnStatus.complete };
+                return {status: DialogTurnStatus.complete};
         }
     }
 
@@ -66,24 +65,22 @@ class ActivityRouterDialog extends ComponentDialog {
             type: ActivityTypes.Trace,
             timestamp: new Date(),
             text: 'ActivityRouterDialog.onEventActivity()',
-            label: `Name: ${ activity.name }, Value: ${ JSON.stringify(activity.value) }`
+            label: `Name: ${activity.name}, Value: ${JSON.stringify(activity.value)}`
         };
         await stepContext.context.sendActivity(traceActivity);
 
         // Resolve what to execute based on the event name.
         switch (activity.name) {
-            case 'BookFlight':
-                return await this.beginBookFlight(stepContext);
-            case 'GetWeather':
-                return await this.beginGetWeather(stepContext);
+            case 'Devices':
+                return await this.beginOpenAiDialog(stepContext);
             default:
                 // We didn't get an event name we can handle.
                 await stepContext.context.sendActivity(
-                    `Unrecognized EventName: "${ stepContext.context.activity.name }".`,
+                    `Unrecognized EventName: "${stepContext.context.activity.name}".`,
                     undefined,
                     InputHints.IgnoringInput
                 );
-                return { status: DialogTurnStatus.complete };
+                return {status: DialogTurnStatus.complete};
         }
     }
 
@@ -96,7 +93,7 @@ class ActivityRouterDialog extends ComponentDialog {
             type: ActivityTypes.Trace,
             timestamp: new Date(),
             text: 'ActivityRouterDialog.onMessageActivity()',
-            label: `Text: ${ activity.text }, Value: ${ JSON.stringify(activity.value) }`
+            label: `Text: ${activity.text}, Value: ${JSON.stringify(activity.value)}`
         };
         await stepContext.context.sendActivity(traceActivity);
 
@@ -113,19 +110,17 @@ class ActivityRouterDialog extends ComponentDialog {
 
             // Create a message showing the LUIS result.
             let resultString = '';
-            resultString += `LUIS results for "${ activity.text }":\n`;
-            resultString += `Intent: "${ topIntent }", Score: ${ luisResult.intents[topIntent].score }\n`;
+            resultString += `LUIS results for "${activity.text}":\n`;
+            resultString += `Intent: "${topIntent}", Score: ${luisResult.intents[topIntent].score}\n`;
 
             await stepContext.context.sendActivity(resultString, undefined, InputHints.IgnoringInput);
 
             switch (topIntent.intent) {
-                case 'BookFlight':
-                    return await this.beginBookFlight(stepContext);
-                case 'GetWeather':
-                    return await this.beginGetWeather(stepContext);
+                case 'Devices':
+                    return await this.beginOpenAiDialog(stepContext);
                 default: {
                     // Catch all for unhandled intents.
-                    const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${ topIntent.intent })`;
+                    const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${topIntent.intent})`;
                     await stepContext.context.sendActivity(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
                     break;
                 }
@@ -135,23 +130,17 @@ class ActivityRouterDialog extends ComponentDialog {
         return { status: DialogTurnStatus.complete };
     }
 
-    async beginGetWeather(stepContext) {
-        const activity = stepContext.context.activity;
-        const location = activity.value || {};
+    async beginOpenAiDialog(stepContext) {
+        // Obtaining a random session ID
+        const id = crypto.randomBytes(16).toString('hex');
+        console.log(id);
+        const openAiDetails = {
+            sessionId: id
+        };
 
-        // We haven't implemented the GetWeatherDialog so we just display a TODO message.
-        const getWeatherMessageText = `TODO: get weather for here (lat: ${ location.latitude }, long: ${ location.longitude })`;
-        await stepContext.context.sendActivity(getWeatherMessageText, getWeatherMessageText, InputHints.IgnoringInput);
-        return { status: DialogTurnStatus.complete };
-    }
-
-    async beginBookFlight(stepContext) {
-        const activity = stepContext.context.activity;
-        const bookingDetails = activity.value || {};
-
-        // Start the booking dialog.
-        const bookingDialog = this.findDialog(BOOKING_DIALOG);
-        return await stepContext.beginDialog(bookingDialog.id, bookingDetails);
+        // Start the openAi dialog.
+        const openAiDialog = this.findDialog(OPENAI_DIALOG);
+        return await stepContext.beginDialog(openAiDialog.id, openAiDetails);
     }
 }
 

@@ -22,15 +22,17 @@ class CancelAndHelpDialog extends ComponentDialog {
             const text = innerDc.context.activity.text.toLowerCase();
 
             switch (text) {
-                case 'help':
+                case 'ayuda':
                 case '?': {
-                    const helpMessageText = 'Show help here';
+                    const helpMessageText = 'Añadir ayuda aqui´';
                     await innerDc.context.sendActivity(helpMessageText, helpMessageText, InputHints.ExpectingInput);
                     return { status: DialogTurnStatus.waiting };
                 }
-                case 'cancel':
-                case 'quit': {
-                    const cancelMessageText = 'Canceling...';
+                case 'cancelar':
+                case 'adiós':
+                case 'bye':
+                case 'salir': {
+                    const cancelMessageText = 'Cancelando...';
                     await innerDc.context.sendActivity(cancelMessageText, cancelMessageText, InputHints.IgnoringInput);
                     return await innerDc.cancelAllDialogs();
                 }

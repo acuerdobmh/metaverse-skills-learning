@@ -16,6 +16,7 @@ const SKILL_PROMPT = 'SkillPrompt';
 const SKILL_ACTION_PROMPT = 'SkillActionPrompt';
 const WATERFALL_DIALOG = 'WaterfallDialog';
 
+const SKILL_ACTION_DEVICES = 'Devices';
 const SKILL_ACTION_BOOK_FLIGHT = 'BookFlight';
 const SKILL_ACTION_BOOK_FLIGHT_WITH_INPUT_PARAMETERS = 'BookFlight with input parameters';
 const SKILL_ACTION_GET_WEATHER = 'GetWeather';
@@ -139,6 +140,10 @@ class MainDialog extends ComponentDialog {
                 skillActivity = this.createDialogSkillBotActivity(stepContext.result.value, stepContext.context);
                 break;
             // We can add other case statements here if we support more than one skill.
+            case 'DialogSkillBotOpenAi':
+                skillActivity = this.createDialogSkillBotActivity(stepContext.result.value, stepContext.context);
+                break;
+            // We can add other case statements here if we support more than one skill.
             default:
                 throw new Error(`Unknown target skill id: ${selectedSkill.id}`);
         }
@@ -211,9 +216,7 @@ class MainDialog extends ComponentDialog {
                 choices.push({value: SKILL_ACTION_GET_WEATHER});
                 break;
             case 'DialogSkillBotOpenAi':
-                choices.push({value: SKILL_ACTION_BOOK_FLIGHT});
-                choices.push({value: SKILL_ACTION_BOOK_FLIGHT_WITH_INPUT_PARAMETERS});
-                choices.push({value: SKILL_ACTION_GET_WEATHER});
+                choices.push({value: SKILL_ACTION_DEVICES});
                 break;
         }
 
@@ -234,6 +237,12 @@ class MainDialog extends ComponentDialog {
         }
 
         let activity;
+
+        // Send an event activity to the skill with "BookFlight" in the name.
+        if (selectedOption.toLowerCase() === SKILL_ACTION_DEVICES.toLowerCase()) {
+            activity = {type: ActivityTypes.Event, name: SKILL_ACTION_DEVICES};
+        }
+
         // Send an event activity to the skill with "BookFlight" in the name.
         if (selectedOption.toLowerCase() === SKILL_ACTION_BOOK_FLIGHT.toLowerCase()) {
             activity = {type: ActivityTypes.Event, name: SKILL_ACTION_BOOK_FLIGHT};

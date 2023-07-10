@@ -23,6 +23,15 @@ class SkillsConfiguration {
 
         this.skillsData[botFrameworkSkillOpenAi.id] = botFrameworkSkillOpenAi;
 
+        // Note: we only have one skill in this sample but we could load more if needed.
+        const botFrameworkSkillAuraMetaverse = {
+            id: process.env.SkillAuraMetaverseId,
+            appId: process.env.SkillAuraMetaverseAppId,
+            skillEndpoint: process.env.SkillAuraMetaverseEndpoint
+        };
+
+        this.skillsData[botFrameworkSkillAuraMetaverse.id] = botFrameworkSkillAuraMetaverse;
+
         this.skillHostEndpointValue = process.env.SkillHostEndpoint;
         if (!this.skillHostEndpointValue) {
             throw new Error('[SkillsConfiguration]: Missing configuration parameter. SkillHostEndpoint is required');

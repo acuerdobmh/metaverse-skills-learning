@@ -17,6 +17,7 @@ const SKILL_ACTION_PROMPT = 'SkillActionPrompt';
 const WATERFALL_DIALOG = 'WaterfallDialog';
 
 const SKILL_ACTION_DEVICES = 'Devices';
+const SKILL_ACTION_METAVERSE = 'Metaverse';
 const SKILL_ACTION_BOOK_FLIGHT = 'BookFlight';
 const SKILL_ACTION_BOOK_FLIGHT_WITH_INPUT_PARAMETERS = 'BookFlight with input parameters';
 const SKILL_ACTION_GET_WEATHER = 'GetWeather';
@@ -143,6 +144,9 @@ class MainDialog extends ComponentDialog {
             case 'DialogSkillBotOpenAi':
                 skillActivity = this.createDialogSkillBotActivity(stepContext.result.value, stepContext.context);
                 break;
+            case 'DialogSkillAuraMetaverse':
+                skillActivity = this.createDialogSkillBotActivity(stepContext.result.value, stepContext.context);
+                break;
             // We can add other case statements here if we support more than one skill.
             default:
                 throw new Error(`Unknown target skill id: ${selectedSkill.id}`);
@@ -218,6 +222,10 @@ class MainDialog extends ComponentDialog {
             case 'DialogSkillBotOpenAi':
                 choices.push({value: SKILL_ACTION_DEVICES});
                 break;
+
+            case 'DialogSkillAuraMetaverse':
+                choices.push({value: SKILL_ACTION_METAVERSE});
+                break;
         }
 
         return choices;
@@ -241,6 +249,11 @@ class MainDialog extends ComponentDialog {
         // Send an event activity to the skill with "BookFlight" in the name.
         if (selectedOption.toLowerCase() === SKILL_ACTION_DEVICES.toLowerCase()) {
             activity = {type: ActivityTypes.Event, name: SKILL_ACTION_DEVICES};
+        }
+
+        // Send an event activity to the skill with "BookFlight" in the name.
+        if (selectedOption.toLowerCase() === SKILL_ACTION_METAVERSE.toLowerCase()) {
+            activity = {type: ActivityTypes.Event, name: SKILL_ACTION_METAVERSE};
         }
 
         // Send an event activity to the skill with "BookFlight" in the name.

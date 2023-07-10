@@ -17,7 +17,7 @@ class SkillsConfiguration {
         // Note: we only have one skill in this sample but we could load more if needed.
         const botFrameworkSkillOpenAi = {
             id: process.env.SkillOpenAiId,
-            appId: process.env.SkillAppOpenAiId,
+            appId: process.env.SkillOpenAiAppId,
             skillEndpoint: process.env.SkillOpenAiEndpoint
         };
 

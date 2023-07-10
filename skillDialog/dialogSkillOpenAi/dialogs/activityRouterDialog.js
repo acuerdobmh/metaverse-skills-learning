@@ -97,37 +97,19 @@ class ActivityRouterDialog extends ComponentDialog {
         };
         await stepContext.context.sendActivity(traceActivity);
 
-        if (!this.luisRecognizer || !this.luisRecognizer.isConfigured) {
-            await stepContext.context.sendActivity(
-                'NOTE: LUIS is not configured. To enable all capabilities, please add \'LuisAppId\', \'LuisAPIKey\' and \'LuisAPIHostName\' to the appsettings.json file.',
-                undefined,
-                InputHints.IgnoringInput
-            );
-        } else {
-            // Call LUIS with the utterance.
-            const luisResult = await this.luisRecognizer.executeLuisQuery(stepContext.context);
-            const topIntent = LuisRecognizer.topIntent(luisResult);
-
-            // Create a message showing the LUIS result.
-            let resultString = '';
-            resultString += `LUIS results for "${activity.text}":\n`;
-            resultString += `Intent: "${topIntent}", Score: ${luisResult.intents[topIntent].score}\n`;
-
-            await stepContext.context.sendActivity(resultString, undefined, InputHints.IgnoringInput);
-
-            switch (topIntent.intent) {
-                case 'Devices':
-                    return await this.beginOpenAiDialog(stepContext);
-                default: {
-                    // Catch all for unhandled intents.
-                    const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${topIntent.intent})`;
-                    await stepContext.context.sendActivity(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
-                    break;
-                }
-            }
+        // Resolve what to execute based on the event name.
+        switch (activity.text) {
+            case 'Devices':
+                return await this.beginOpenAiDialog(stepContext);
+            default:
+                // We didn't get an event name we can handle.
+                await stepContext.context.sendActivity(
+                    `Unrecognized MessageName: "${stepContext.context.activity.text}".`,
+                    undefined,
+                    InputHints.IgnoringInput
+                );
+                return {status: DialogTurnStatus.complete};
         }
-
-        return { status: DialogTurnStatus.complete };
     }
 
     async beginOpenAiDialog(stepContext) {
